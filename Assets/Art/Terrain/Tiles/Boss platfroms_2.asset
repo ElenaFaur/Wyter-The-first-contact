@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 13312, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: first level cave_0
+  m_Name: Boss platfroms_2
   m_EditorClassIdentifier: 
-  m_Sprite: {fileID: 352867032, guid: 500bbb78de27b284f952652b51a011cf, type: 3}
+  m_Sprite: {fileID: -1710304269, guid: d9d9bf00fd6ab4f46a046435024bef56, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Transform:
     e00: 1
