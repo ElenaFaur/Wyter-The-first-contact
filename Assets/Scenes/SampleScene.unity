@@ -133,6 +133,7 @@ GameObject:
   - component: {fileID: 519420032}
   - component: {fileID: 519420031}
   - component: {fileID: 519420029}
+  - component: {fileID: 519420033}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -212,8 +213,21 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 717707382}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &519420033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519420028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47a95aa69e0e3144585ef2d37164ac78, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 717707382}
 --- !u!1 &600494901
 GameObject:
   m_ObjectHideFlags: 0
@@ -346,7 +360,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 519420032}
   - {fileID: 1544282970}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -434,7 +447,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24d9b5a1161291941a8876a50dc8ca05, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 7
+  moveSpeed: 9
+  jumpForce: 14
 --- !u!95 &717707386
 Animator:
   serializedVersion: 5
@@ -139356,5 +139370,6 @@ Tilemap:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 519420032}
   - {fileID: 600494903}
   - {fileID: 717707382}
