@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 53e2372b766f6254d83baf7232348404
+guid: 38431a939aa1b334883350dd09701c7a
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,12 +110,12 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: running-mc_0
+      name: jump-mc_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 203
+        width: 188
         height: 256
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -124,19 +124,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 72075f268d2ea934b8d30af21e26bf84
-      internalID: -348431811
+      spriteID: 20f4d72c36bc9604190141d319a7ecdf
+      internalID: 1064865333
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: running-mc_1
+      name: jump-mc_1
       rect:
         serializedVersion: 2
-        x: 203
+        x: 188
         y: 0
-        width: 203
+        width: 188
         height: 256
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -145,19 +145,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0c9e90024bd7c0a48b8e848354eb43e5
-      internalID: -1639176471
+      spriteID: 5cf480e0fb3153e47a673732f00bf6da
+      internalID: -1663098622
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: running-mc_2
+      name: jump-mc_2
       rect:
         serializedVersion: 2
-        x: 406
+        x: 376
         y: 0
-        width: 203
+        width: 188
         height: 256
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -166,19 +166,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 2aa193db8f92b064cb9247b88731b1c8
-      internalID: -56401834
+      spriteID: 7b0a8af4311719c42bb7d60195f16b8e
+      internalID: -779256165
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: running-mc_3
+      name: jump-mc_3
       rect:
         serializedVersion: 2
-        x: 609
+        x: 564
         y: 0
-        width: 203
+        width: 188
         height: 256
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -187,19 +187,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 60e21eef4387ffc45a5e1aacdee1e597
-      internalID: 1224654278
+      spriteID: 900a2bf2d2a834943a345b689c3ed70e
+      internalID: 1331293398
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: running-mc_4
+      name: jump-mc_4
       rect:
         serializedVersion: 2
-        x: 812
+        x: 752
         y: 0
-        width: 203
+        width: 188
         height: 256
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -208,19 +208,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c1d23c8b6b6a9f540ba5e9f7c7cf4db1
-      internalID: -555084474
+      spriteID: e77b3e51d5bda934c8a8eaf1bf896123
+      internalID: 1854635564
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: running-mc_5
+      name: jump-mc_5
       rect:
         serializedVersion: 2
-        x: 1015
+        x: 940
         y: 0
-        width: 203
+        width: 188
         height: 256
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -229,19 +229,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b77b3e6f644bbb94b956f5c679945d07
-      internalID: 1812645169
+      spriteID: 4212edc2d02f9454ca7d7a4636534641
+      internalID: 844796406
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: running-mc_6
+      name: jump-mc_6
       rect:
         serializedVersion: 2
-        x: 1218
+        x: 1128
         y: 0
-        width: 203
+        width: 188
         height: 256
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -250,19 +250,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 2e0058a99400ed84f8f8c71cf00a14d8
-      internalID: 1313349047
+      spriteID: 24cb2c5a56e142445b9462c1f5c20e55
+      internalID: -661642991
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: running-mc_7
+      name: jump-mc_7
       rect:
         serializedVersion: 2
-        x: 1421
+        x: 1316
         y: 0
-        width: 203
+        width: 188
         height: 256
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -271,50 +271,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 52b919f526e72b34fb4e42855c3b9b14
-      internalID: -429575939
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: running-mc_8
-      rect:
-        serializedVersion: 2
-        x: 1624
-        y: 0
-        width: 203
-        height: 256
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 9a3f2bbd278849e49990ec1b320f0ccd
-      internalID: -999806567
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: running-mc_9
-      rect:
-        serializedVersion: 2
-        x: 1827
-        y: 0
-        width: 203
-        height: 256
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: f1e108dadeab19b4aa70790ba9633f4d
-      internalID: -910812858
+      spriteID: 1ae61d68e47cfd44ea47c4bf0a94b5fa
+      internalID: -1903551563
       vertices: []
       indices: 
       edges: []
@@ -330,16 +288,14 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      running-mc_0: -348431811
-      running-mc_1: -1639176471
-      running-mc_2: -56401834
-      running-mc_3: 1224654278
-      running-mc_4: -555084474
-      running-mc_5: 1812645169
-      running-mc_6: 1313349047
-      running-mc_7: -429575939
-      running-mc_8: -999806567
-      running-mc_9: -910812858
+      jump-mc_0: 1064865333
+      jump-mc_1: -1663098622
+      jump-mc_2: -779256165
+      jump-mc_3: 1331293398
+      jump-mc_4: 1854635564
+      jump-mc_5: 844796406
+      jump-mc_6: -661642991
+      jump-mc_7: -1903551563
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
