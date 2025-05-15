@@ -11,6 +11,9 @@ public class PlayerMovement : MonoBehaviour
 
     [SerializeField] private LayerMask jumpableGround;
 
+    private int jumpCounter;
+    [SerializeField] private int resetJumpCounter = 1;
+
     private float dirX = 0f;
     [SerializeField] private float moveSpeed = 7f;
     [SerializeField] private float jumpForce = 14f;
@@ -30,9 +33,15 @@ public class PlayerMovement : MonoBehaviour
         dirX = Input.GetAxisRaw("Horizontal");
         rb.velocity = new Vector2(dirX * moveSpeed, rb.velocity.y);
 
-        if(Input.GetButtonDown("Jump") && IsGrounded())
+        if(Input.GetButtonDown("Jump") && jumpCounter > 0)
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            jumpCounter--;
+        }
+
+        if(IsGrounded())
+        {
+            jumpCounter = resetJumpCounter;
         }
 
         UpdateAnimationState();

@@ -450,6 +450,7 @@ MonoBehaviour:
   jumpableGround:
     serializedVersion: 2
     m_Bits: 64
+  resetJumpCounter: 1
   moveSpeed: 9
   jumpForce: 14
 --- !u!95 &717707386
