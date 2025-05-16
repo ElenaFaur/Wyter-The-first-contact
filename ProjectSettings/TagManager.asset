@@ -41,6 +41,15 @@ TagManager:
   - name: Background
     uniqueID: 255075445
     locked: 0
+  - name: Rocks
+    uniqueID: 2865349797
+    locked: 0
+  - name: Stalactite
+    uniqueID: 96533477
+    locked: 0
+  - name: Mushrooms
+    uniqueID: 2627714451
+    locked: 0
   - name: Terrain
     uniqueID: 454010481
     locked: 0
