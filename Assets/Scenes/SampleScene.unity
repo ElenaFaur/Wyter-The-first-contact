@@ -659,6 +659,7 @@ GameObject:
   - component: {fileID: 717707383}
   - component: {fileID: 717707384}
   - component: {fileID: 717707385}
+  - component: {fileID: 717707387}
   - component: {fileID: 717707386}
   m_Layer: 0
   m_Name: Player
@@ -758,9 +759,9 @@ Rigidbody2D:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 4
 --- !u!61 &717707384
 BoxCollider2D:
@@ -825,6 +826,11 @@ MonoBehaviour:
   resetJumpCounter: 1
   moveSpeed: 9
   jumpForce: 14
+  jumpBufferFrames: 1
+  coyoteTime: 0.1
+  dashSpeed: 20
+  dashTime: 0.2
+  dashCooldown: 0.35
 --- !u!95 &717707386
 Animator:
   serializedVersion: 5
@@ -846,6 +852,20 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &717707387
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 717707380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7312857396cd46f46a9ff516a7cef38d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  jumping: 0
+  dashing: 0
 --- !u!1 &886144247
 GameObject:
   m_ObjectHideFlags: 0
