@@ -871,16 +871,16 @@ MonoBehaviour:
   SideAttackTransform: {fileID: 1228170694}
   UpAttackTransform: {fileID: 180368746}
   DownAttackTransform: {fileID: 2113649272}
-  SideAttackArea: {x: 4.5, y: 3.5}
-  UpAttackArea: {x: 3.5, y: 4.5}
-  DownAttackArea: {x: 3.5, y: 4.5}
+  SideAttackArea: {x: 4.5, y: 3}
+  UpAttackArea: {x: 3, y: 4.5}
+  DownAttackArea: {x: 3, y: 4.5}
   attackableLayer:
     serializedVersion: 2
     m_Bits: 128
   damage: 10
   slashEffect: {fileID: 2645878152845544355, guid: 2855da7ab8a7c7f48bec0e2ff983fe52, type: 3}
-  recoilXSteps: 5
-  recoilYSteps: 5
+  recoilXSteps: 50
+  recoilYSteps: 50
   recoilXSpeed: 100
   recoilYSpeed: 100
   health: 0

@@ -15,10 +15,10 @@ public class Enemy : MonoBehaviour
     protected float recoilTimer;
     protected Rigidbody2D rb;
     // Start is called before the first frame update
-    protected virtual void Start()
-    {
+    // protected virtual void Start()
+    // {
 
-    }
+    // }
 
     protected virtual void Awake()
     {
@@ -69,5 +69,7 @@ public class Enemy : MonoBehaviour
     protected virtual void Attack()
     {
         PlayerMovement.Instance.TakeDamage(damage);
+        Vector2 recoilDirection = (player.transform.position - transform.position).normalized;
+        PlayerMovement.Instance.Recoil(recoilDirection, 20);
     }
 }

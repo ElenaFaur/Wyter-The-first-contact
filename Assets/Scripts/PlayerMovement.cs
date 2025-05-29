@@ -45,11 +45,10 @@ public class PlayerMovement : MonoBehaviour
     [Space(5)]
 
     [Header("Recoil")]
-    [SerializeField] int recoilXSteps = 5;
-    [SerializeField] int recoilYSteps = 5;
     [SerializeField] float recoilXSpeed = 100;
     [SerializeField] float recoilYSpeed = 100;
-    private int stepsXRecoiled, stepsYRecoiled;
+    [SerializeField] private float recoilDuration = 0.2f;
+    private bool isRecoiling = false;
     [Space(5)]
 
     [Header("Health Settings")]
@@ -93,6 +92,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
+        if (isRecoiling) return;
+
         dirX = Input.GetAxisRaw("Horizontal");
         dirY = Input.GetAxisRaw("Vertical");
         attack = Input.GetMouseButtonDown(0);
@@ -294,73 +295,33 @@ public class PlayerMovement : MonoBehaviour
         _slashEffect.transform.localScale = new Vector2(transform.localScale.x, transform.localScale.y);
     }
 
-    void Recoil()
+
+    public void Recoil(Vector2 recoilDirection, float recoilStrength)
     {
-        if (pState.recoilingX)
-        {
-            if (pState.lookingRight)
-            {
-                rb.velocity = new Vector2(-recoilXSpeed, 0);
-            }
-            else
-            {
-                rb.velocity = new Vector2(recoilXSpeed, 0);
-            }
-        }
+        // Reset any existing recoil
+        StopRecoil();
 
-        if (pState.recoilingY)
-        {
-            rb.gravityScale = 0;
-            if (dirY < 0)
-            {
-                rb.velocity = new Vector2(rb.velocity.x, recoilYSpeed);
-            }
-            else
-            {
-                rb.velocity = new Vector2(rb.velocity.x, -recoilYSpeed);
-            }
-            jumpCounter = 0;
-        }
-        else
-        {
-            rb.gravityScale = gravity;
-        }
+        // Apply force in the recoil direction
+        rb.AddForce(recoilDirection.normalized * recoilStrength, ForceMode2D.Impulse);
 
-        //Stop Recoil
-        if (pState.recoilingX && stepsXRecoiled < recoilXSteps)
-        {
-            stepsXRecoiled++;
-        }
-        else
-        {
-            StopRecoilX();
-        }
+        // Set recoil state
+        isRecoiling = true;
 
-        if (pState.recoilingY && stepsYRecoiled < recoilYSteps)
-        {
-            stepsYRecoiled++;
-        }
-        else
-        {
-            StopRecoilY();
-        }
-
-        if (IsGrounded())
-        {
-            StopRecoilY();
-        }
+        // Start coroutine to stop recoil after duration
+        StartCoroutine(StopRecoilAfterTime(recoilDuration));
     }
 
-    void StopRecoilX()
+    private IEnumerator StopRecoilAfterTime(float time)
     {
-        stepsXRecoiled = 0;
-        pState.recoilingX = false;
+        yield return new WaitForSeconds(time);
+        StopRecoil();
     }
 
-    void StopRecoilY()
+    private void StopRecoil()
     {
-        stepsYRecoiled = 0;
-        pState.recoilingY = false;
+        isRecoiling = false;
+        // Optional: You might want to dampen the velocity after recoil
+        rb.velocity = new Vector2(rb.velocity.x * 0.5f, rb.velocity.y * 0.5f);
     }
 
     public void TakeDamage(float _damage)
