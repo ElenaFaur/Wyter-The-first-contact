@@ -1,6 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Microsoft.Unity.VisualStudio.Editor;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -9,6 +14,7 @@ public class PlayerMovement : MonoBehaviour
     private SpriteRenderer sprite;
     private Animator anim;
     [HideInInspector] public PlayerStateList pState;
+    private SpriteRenderer sr;
     private bool canDash = true;
     private bool dashed;
     private float gravity;
@@ -42,6 +48,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] LayerMask attackableLayer;
     [SerializeField] float damage = 10;
     [SerializeField] GameObject slashEffect;
+    bool restoreTime;
+    float restoreTimeSpeed;
     [Space(5)]
 
     [Header("Recoil")]
@@ -54,6 +62,30 @@ public class PlayerMovement : MonoBehaviour
     [Header("Health Settings")]
     public int health;
     public int maxHealth;
+    [SerializeField] GameObject bloodSpurt;
+    [SerializeField] float hitFlashSpeed;
+    public delegate void OnHealthChangedDelegate();
+    [HideInInspector] public OnHealthChangedDelegate onHealthChangedCallback;
+    float healTimer;
+    [SerializeField] float timeToHeal;
+    [Space(5)]
+
+    [Header("Mana Settings")]
+    [SerializeField] UnityEngine.UI.Image manaStorage;
+    [SerializeField] float mana;
+    [SerializeField] float manaDrainSpeed;
+    [SerializeField] float manaGain;
+    [Space(5)]
+
+    [Header("Spell Settings")]
+    [SerializeField] float manaSpellCost = 0.3f;
+    [SerializeField] float timeBetweenCast = 0.5f;
+    float timeSinceCast;
+    [SerializeField] float spellDamage; //upspellexplosion and downspellfireball
+    [SerializeField] float downSpellForce; //desolate dive only
+    [SerializeField] GameObject sideSpellFireball;
+    [SerializeField] GameObject upSpellExplosion;
+    [SerializeField] GameObject downSpellFireball;
 
     private enum MovementState { idle, running, jumping, falling }
 
@@ -69,7 +101,7 @@ public class PlayerMovement : MonoBehaviour
         {
             Instance = this;
         }
-        health = maxHealth;
+        Health = maxHealth;
     }
 
     private void Start()
@@ -80,6 +112,9 @@ public class PlayerMovement : MonoBehaviour
         sprite = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
         gravity = rb.gravityScale;
+        sr = GetComponent<SpriteRenderer>();
+        Mana = mana;
+        manaStorage.fillAmount = Mana;
     }
 
     private void OnDrawGizmos()
@@ -136,6 +171,36 @@ public class PlayerMovement : MonoBehaviour
         StartDash();
         Attack();
         UpdateAnimationState();
+        RestoreTimeScale();
+        FlashWhileInvincible();
+        Heal();
+        CastSpell();
+    }
+
+    private void FixedUpdate()
+    {
+        if (pState.dashing) return;
+
+        if (pState.recoilingX)
+        {
+            float xDirection = pState.lookingRight ? -1f : 1f;
+            Recoil(new Vector2(xDirection, 0f), recoilXSpeed);
+            pState.recoilingX = false;
+        }
+
+        if (pState.recoilingY)
+        {
+            Recoil(new Vector2(0f, -1f), recoilYSpeed);
+            pState.recoilingY = false;
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D _other)
+    {
+        if (_other.GetComponent<Enemy>() != null && pState.casting) //for up and down cast spell
+        {
+            _other.GetComponent<Enemy>().EnemyHit(spellDamage, (_other.transform.position - transform.position).normalized, -recoilYSpeed);
+        }
     }
 
     private void UpdateAnimationState()
@@ -268,7 +333,6 @@ public class PlayerMovement : MonoBehaviour
     private void Hit(Transform _attackTransform, Vector2 _attackArea, ref bool _recoilDir, float _recoilStrength)
     {
         Collider2D[] objectsToHit = Physics2D.OverlapBoxAll(_attackTransform.position, _attackArea, 0, attackableLayer);
-        List<Enemy> hitEnemies = new List<Enemy>();
 
         if (objectsToHit.Length > 0)
         {
@@ -278,14 +342,58 @@ public class PlayerMovement : MonoBehaviour
 
         for (int i = 0; i < objectsToHit.Length; i++)
         {
-            Enemy e = objectsToHit[i].GetComponent<Enemy>();
-
-            if (e && !hitEnemies.Contains(e))
+            if (objectsToHit[i].GetComponent<Enemy>() != null)
             {
-                e.EnemyHit(damage, (transform.position - objectsToHit[i].transform.position).normalized, _recoilStrength);
-                hitEnemies.Add(e);
+                objectsToHit[i].GetComponent<Enemy>().EnemyHit(damage, (transform.position - objectsToHit[i].transform.position).normalized, _recoilStrength);
+                if (objectsToHit[i].CompareTag("Enemy"))
+                {
+                    Mana += manaGain;
+                }
             }
         }
+    }
+
+    public void HitStopTime(float _newTimeScale, int _restoreSpeed, float _delay)
+    {
+        restoreTimeSpeed = _restoreSpeed;
+        Time.timeScale = _newTimeScale;
+
+        if (_delay > 0)
+        {
+            StopCoroutine(StartTimeAgain(_delay));
+            StartCoroutine(StartTimeAgain(_delay));
+        }
+        else
+        {
+            restoreTime = true;
+        }
+    }
+
+    void RestoreTimeScale()
+    {
+        if (restoreTime)
+        {
+            if (Time.timeScale < 1)
+            {
+                Time.timeScale += Time.deltaTime * restoreTimeSpeed;
+            }
+            else
+            {
+                Time.timeScale = 1;
+                restoreTime = false;
+            }
+        }
+    }
+
+    void FlashWhileInvincible()
+    {
+        sr.material.color = pState.invincible ? Color.Lerp(Color.white, Color.black, Mathf.PingPong(Time.time * hitFlashSpeed, 1.0f)) : Color.white;
+    }
+
+    IEnumerator StartTimeAgain(float _delay)
+    {
+        restoreTime = true;
+        yield return new WaitForSeconds(_delay);
     }
 
     void SlashEffectAtAngle(GameObject _slashEffect, int _effectAngle, Transform _attackTransform)
@@ -326,20 +434,141 @@ public class PlayerMovement : MonoBehaviour
 
     public void TakeDamage(float _damage)
     {
-        health -= Mathf.RoundToInt(_damage);
+        Health -= Mathf.RoundToInt(_damage);
         StartCoroutine(StopTakingDamage());
     }
 
     IEnumerator StopTakingDamage()
     {
         pState.invincible = true;
+        GameObject _bloodSpurtParticles = Instantiate(bloodSpurt, transform.position, Quaternion.identity);
+        Destroy(_bloodSpurtParticles, 1.5f);
         anim.SetTrigger("takeDamage");
-        ClampHealth();
         yield return new WaitForSeconds(1f);
         pState.invincible = false;
     }
-    void ClampHealth()
+
+    public int Health
     {
-        health = Mathf.Clamp(health, 0, maxHealth);
+        get { return health; }
+        set
+        {
+            if (health != value)
+            {
+                health = Mathf.Clamp(value, 0, maxHealth);
+
+                if (onHealthChangedCallback != null)
+                {
+                    onHealthChangedCallback.Invoke();
+                }
+            }
+        }
+    }
+
+    void Heal()
+    {
+        if (Input.GetButton("Healing") && Health < maxHealth && Mana > 0 && !pState.jumping && !pState.dashing)
+        {
+            pState.healing = true;
+            anim.SetBool("healing", true);
+
+            //healing
+            healTimer += Time.deltaTime;
+            if (healTimer >= timeToHeal)
+            {
+                Health++;
+                healTimer = 0;
+            }
+
+            //drain mana
+            Mana -= Time.deltaTime * manaDrainSpeed;
+        }
+        else
+        {
+            pState.healing = false;
+            anim.SetBool("healing", false);
+            healTimer = 0;
+        }
+    }
+
+    float Mana
+    {
+        get { return mana; }
+        set
+        {
+            //if mana stats change
+            if (mana != value)
+            {
+                mana = Mathf.Clamp(value, 0, 1);
+                manaStorage.fillAmount = Mana;
+            }
+        }
+    }
+
+    void CastSpell()
+    {
+        if (Input.GetButtonDown("CastSpell") && timeSinceCast >= timeBetweenCast && Mana >= manaSpellCost)
+        {
+            pState.casting = true;
+            timeSinceCast = 0;
+            StartCoroutine(CastCoroutine());
+        }
+        else
+        {
+            //disable downspell if on the ground
+            timeSinceCast += Time.deltaTime;
+        }
+
+        if (IsGrounded())
+        {
+            downSpellFireball.SetActive(false);
+        }
+
+        //if down spell is active, force player down until grounded
+        if (downSpellFireball.activeInHierarchy)
+        {
+            rb.velocity += downSpellForce * Vector2.down;
+        }
+    }
+
+    IEnumerator CastCoroutine()
+    {
+        anim.SetBool("casting", true);
+        yield return new WaitForSeconds(0.15f);
+
+        //side cast
+        if (dirY == 0 || (dirY < 0 && IsGrounded()))
+        {
+            GameObject _fireBall = Instantiate(sideSpellFireball, SideAttackTransform.position, Quaternion.identity);
+
+            //flip fireball
+            if (pState.lookingRight)
+            {
+                _fireBall.transform.eulerAngles = Vector3.zero;// if facing right, fireball continues as per normal
+            }
+            else
+            {
+                _fireBall.transform.eulerAngles = new Vector2(_fireBall.transform.eulerAngles.x, 180); //if not facing right, rotate the fireball 180 deg
+            }
+            pState.recoilingX = true;
+        }
+
+        //up cast
+        else if (dirY > 0)
+        {
+            Instantiate(upSpellExplosion, transform);
+            rb.velocity = Vector2.zero;
+        }
+
+        //down cast
+        else if (dirY < 0 && !IsGrounded())
+        {
+            downSpellFireball.SetActive(true);
+        }
+
+        Mana -= manaSpellCost;
+        yield return new WaitForSeconds(0.35f);
+        anim.SetBool("casting", false);
+        pState.casting = false;
     }
 }
