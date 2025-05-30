@@ -139,7 +139,16 @@ public class PlayerMovement : MonoBehaviour
         }
 
         UpdateJumpVariables();
+
         if (pState.dashing) return;
+        
+        RestoreTimeScale();
+        FlashWhileInvincible();
+        UpdateAnimationState();
+        Heal();
+        CastSpell();
+
+        if (pState.healing) return;
 
         if (Input.GetButtonUp("Jump") && rb.velocity.y > 0)
         {
@@ -170,29 +179,24 @@ public class PlayerMovement : MonoBehaviour
 
         StartDash();
         Attack();
-        UpdateAnimationState();
-        RestoreTimeScale();
-        FlashWhileInvincible();
-        Heal();
-        CastSpell();
     }
 
     private void FixedUpdate()
     {
         if (pState.dashing) return;
 
-        if (pState.recoilingX)
-        {
-            float xDirection = pState.lookingRight ? -1f : 1f;
-            Recoil(new Vector2(xDirection, 0f), recoilXSpeed);
-            pState.recoilingX = false;
-        }
+        // if (pState.recoilingX)
+        // {
+        //     float xDirection = pState.lookingRight ? -1f : 1f;
+        //     Recoil(new Vector2(xDirection, 0f), recoilXSpeed);
+        //     pState.recoilingX = false;
+        // }
 
-        if (pState.recoilingY)
-        {
-            Recoil(new Vector2(0f, -1f), recoilYSpeed);
-            pState.recoilingY = false;
-        }
+        // if (pState.recoilingY)
+        // {
+        //     Recoil(new Vector2(0f, -1f), recoilYSpeed);
+        //     pState.recoilingY = false;
+        // }
     }
 
     private void OnTriggerEnter2D(Collider2D _other)
@@ -334,11 +338,11 @@ public class PlayerMovement : MonoBehaviour
     {
         Collider2D[] objectsToHit = Physics2D.OverlapBoxAll(_attackTransform.position, _attackArea, 0, attackableLayer);
 
-        if (objectsToHit.Length > 0)
-        {
-            Debug.Log("Hit");
-            _recoilDir = true;
-        }
+        // if (objectsToHit.Length > 0)
+        // {
+        //     Debug.Log("Hit");
+        //     _recoilDir = true;
+        // }
 
         for (int i = 0; i < objectsToHit.Length; i++)
         {
@@ -375,7 +379,7 @@ public class PlayerMovement : MonoBehaviour
         {
             if (Time.timeScale < 1)
             {
-                Time.timeScale += Time.deltaTime * restoreTimeSpeed;
+                Time.timeScale += Time.unscaledDeltaTime * restoreTimeSpeed;
             }
             else
             {
@@ -392,8 +396,8 @@ public class PlayerMovement : MonoBehaviour
 
     IEnumerator StartTimeAgain(float _delay)
     {
+        yield return new WaitForSecondsRealtime(_delay);
         restoreTime = true;
-        yield return new WaitForSeconds(_delay);
     }
 
     void SlashEffectAtAngle(GameObject _slashEffect, int _effectAngle, Transform _attackTransform)

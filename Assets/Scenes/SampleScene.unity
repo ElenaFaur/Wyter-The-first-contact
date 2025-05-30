@@ -1097,10 +1097,10 @@ MonoBehaviour:
   health: 0
   maxHealth: 10
   bloodSpurt: {fileID: 1834371894498681699, guid: e9ab948d6aa0dd74983779a24b7c93c5, type: 3}
-  hitFlashSpeed: 0.5
+  hitFlashSpeed: 5
   timeToHeal: 1
   manaStorage: {fileID: 1675483870}
-  mana: 10
+  mana: 50
   manaDrainSpeed: 0.3
   manaGain: 0.5
   manaSpellCost: 0.1
@@ -140340,7 +140340,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   health: 100
   recoilLength: 2
-  recoilFactor: 5
+  recoilFactor: 10
   isRecoiling: 0
   player: {fileID: 0}
   speed: 3
@@ -140404,7 +140404,7 @@ GameObject:
   - component: {fileID: 1412341022}
   - component: {fileID: 1412341021}
   - component: {fileID: 1412341023}
-  - component: {fileID: 1412341024}
+  - component: {fileID: 1412341025}
   m_Layer: 0
   m_Name: Down Spell Fireball
   m_TagString: Untagged
@@ -140514,21 +140514,27 @@ CircleCollider2D:
   m_Offset: {x: 0.9932612, y: -0.24424359}
   serializedVersion: 2
   m_Radius: 0.6105203
---- !u!111 &1412341024
-Animation:
+--- !u!95 &1412341025
+Animator:
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1412341020}
   m_Enabled: 1
-  serializedVersion: 3
-  m_Animation: {fileID: 7400000, guid: 45edb503c825b074293b993f5bb9609e, type: 2}
-  m_Animations: []
-  m_WrapMode: 0
-  m_PlayAutomatically: 1
-  m_AnimatePhysics: 0
-  m_CullingType: 0
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 5944f829c9af4db4c8c1a2c9b27794c2, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1506753467
 GameObject:
   m_ObjectHideFlags: 0
