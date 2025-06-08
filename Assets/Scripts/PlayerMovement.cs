@@ -9,7 +9,7 @@ using UnityEngine.UIElements;
 
 public class PlayerMovement : MonoBehaviour
 {
-    private Rigidbody2D rb;
+    [HideInInspector]public Rigidbody2D rb;
     private BoxCollider2D coll;
     private SpriteRenderer sprite;
     private Animator anim;
@@ -86,6 +86,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] GameObject sideSpellFireball;
     [SerializeField] GameObject upSpellExplosion;
     [SerializeField] GameObject downSpellFireball;
+    [Space(5)]
+
+    [Header("Camera Stuff")]
+    [SerializeField] private float playerFallSpeedThreshold = -10;
 
     private enum MovementState { idle, running, jumping, falling }
 
@@ -101,7 +105,7 @@ public class PlayerMovement : MonoBehaviour
         {
             Instance = this;
         }
-        Health = maxHealth;
+        DontDestroyOnLoad(gameObject);
     }
 
     private void Start()
@@ -115,6 +119,7 @@ public class PlayerMovement : MonoBehaviour
         sr = GetComponent<SpriteRenderer>();
         Mana = mana;
         manaStorage.fillAmount = Mana;
+        Health = maxHealth;
     }
 
     private void OnDrawGizmos()
@@ -139,6 +144,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         UpdateJumpVariables();
+        UpdateCameraYDampForPlayerFall();
 
         if (pState.dashing) return;
         
@@ -278,6 +284,20 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    void UpdateCameraYDampForPlayerFall()
+    {
+        //if falling past a certain speed threshold
+        if (rb.velocity.y < playerFallSpeedThreshold && !CameraManager.Instance.isLerpingYDamping && !CameraManager.Instance.hasLerpedYDamping)
+        {
+            CameraManager.Instance.StartYDampingCoroutine(true);
+        }
+        //if standing still or moving up
+        if (rb.velocity.y > 0 && !CameraManager.Instance.isLerpingYDamping && CameraManager.Instance.hasLerpedYDamping)
+        {
+            //reset camera function
+            CameraManager.Instance.StartYDampingCoroutine(false);
+        }
+    }
     void StartDash()
     {
         if (Input.GetButtonDown("Dash") && canDash && !dashed)
@@ -318,37 +338,37 @@ public class PlayerMovement : MonoBehaviour
 
             if (dirY == 0 || dirY < 0 && IsGrounded())
             {
-                Hit(SideAttackTransform, SideAttackArea, ref pState.recoilingX, recoilXSpeed);
+                int _recoilLeftOrRight = pState.lookingRight ? 1 : 1;
+                Hit(SideAttackTransform, SideAttackArea, ref pState.recoilingX, Vector2.right * _recoilLeftOrRight, recoilXSpeed);
                 Instantiate(slashEffect, SideAttackTransform);
             }
             else if (dirY > 0)
             {
-                Hit(UpAttackTransform, UpAttackArea, ref pState.recoilingY, recoilYSpeed);
+                Hit(UpAttackTransform, UpAttackArea, ref pState.recoilingY, Vector2.up, recoilYSpeed);
                 SlashEffectAtAngle(slashEffect, 80, UpAttackTransform);
             }
             else if (dirY < 0 && !IsGrounded())
             {
-                Hit(DownAttackTransform, DownAttackArea, ref pState.recoilingY, recoilYSpeed);
+                Hit(DownAttackTransform, DownAttackArea, ref pState.recoilingY, Vector2.down, recoilYSpeed);
                 SlashEffectAtAngle(slashEffect, -90, DownAttackTransform);
             }
         }
     }
 
-    private void Hit(Transform _attackTransform, Vector2 _attackArea, ref bool _recoilDir, float _recoilStrength)
+    private void Hit(Transform _attackTransform, Vector2 _attackArea, ref bool _recoilBool, Vector2 _recoilDir, float _recoilStrength)
     {
         Collider2D[] objectsToHit = Physics2D.OverlapBoxAll(_attackTransform.position, _attackArea, 0, attackableLayer);
 
-        // if (objectsToHit.Length > 0)
-        // {
-        //     Debug.Log("Hit");
-        //     _recoilDir = true;
-        // }
+        if (objectsToHit.Length > 0)
+        {
+            _recoilBool = true;
+        }
 
         for (int i = 0; i < objectsToHit.Length; i++)
         {
             if (objectsToHit[i].GetComponent<Enemy>() != null)
             {
-                objectsToHit[i].GetComponent<Enemy>().EnemyHit(damage, (transform.position - objectsToHit[i].transform.position).normalized, _recoilStrength);
+                objectsToHit[i].GetComponent<Enemy>().EnemyHit(damage, _recoilDir, _recoilStrength);
                 if (objectsToHit[i].CompareTag("Enemy"))
                 {
                     Mana += manaGain;
@@ -549,10 +569,12 @@ public class PlayerMovement : MonoBehaviour
             if (pState.lookingRight)
             {
                 _fireBall.transform.eulerAngles = Vector3.zero;// if facing right, fireball continues as per normal
+                Recoil(Vector2.left, recoilXSpeed * 0.6f);
             }
             else
             {
                 _fireBall.transform.eulerAngles = new Vector2(_fireBall.transform.eulerAngles.x, 180); //if not facing right, rotate the fireball 180 deg
+                Recoil(Vector2.right, recoilXSpeed * 0.6f);
             }
             pState.recoilingX = true;
         }
