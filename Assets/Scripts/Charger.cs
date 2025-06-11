@@ -34,6 +34,23 @@ public class Charger : Enemy
     //     base.EnemyHit(_damageDone, _hitDirection, _hitForce);
     // }
 
+     protected override void Update()
+    {
+        base.Update();
+        if (!PlayerMovement.Instance.pState.alive)
+        {
+            ChangeState(EnemyStates.Charger_Idle);
+        }
+    }
+
+    private void OllisionEnter2D(Collision2D _collision)
+    {
+        if (_collision.gameObject.CompareTag("Enemy"))
+        {
+            transform.localScale = new Vector2(transform.localScale.x * -1, transform.localScale.y);
+        }
+    }
+
     protected override void UpdateEnemyStates()
     {
         if (health <= 0)

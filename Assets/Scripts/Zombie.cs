@@ -32,13 +32,29 @@ public class Zombie : Enemy
     //     base.EnemyHit(_damageDone, _hitDirection, _hitForce);
     // }
 
+    protected override void Update()
+    {
+        base.Update();
+        if (!PlayerMovement.Instance.pState.alive)
+        {
+            ChangeState(EnemyStates.Crawler_Idle);
+        }
+    }
+    private void OnCollisionEnter2D(Collision2D _collision)
+    {
+        if (_collision.gameObject.CompareTag("Enemy"))
+        {
+            ChangeState(EnemyStates.Crawler_Flip);
+        }
+    }
+
     protected override void UpdateEnemyStates()
     {
         if (health <= 0)
         {
             Death(0.05f);
         }
-        
+
         switch (GetCurrentEnemyState)
         {
             case EnemyStates.Crawler_Idle:
