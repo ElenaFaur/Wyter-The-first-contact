@@ -75,6 +75,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float mana;
     [SerializeField] float manaDrainSpeed;
     [SerializeField] float manaGain;
+    public bool halfMana;
     [Space(5)]
 
     [Header("Spell Settings")]
@@ -111,12 +112,14 @@ public class PlayerMovement : MonoBehaviour
     private void Start()
     {
         pState = GetComponent<PlayerStateList>();
+        pState.alive = true;
         rb = GetComponent<Rigidbody2D>();
         coll = GetComponent<BoxCollider2D>();
         sprite = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
-        gravity = rb.gravityScale;
         sr = GetComponent<SpriteRenderer>();
+        SaveData.Instance.LoadPlayerData();
+        gravity = rb.gravityScale;
         Mana = mana;
         manaStorage.fillAmount = Mana;
         Health = maxHealth;
@@ -134,9 +137,12 @@ public class PlayerMovement : MonoBehaviour
     {
         if (isRecoiling) return;
 
-        dirX = Input.GetAxisRaw("Horizontal");
-        dirY = Input.GetAxisRaw("Vertical");
-        attack = Input.GetMouseButtonDown(0);
+        if (pState.alive)
+        {
+            dirX = Input.GetAxisRaw("Horizontal");
+            dirY = Input.GetAxisRaw("Vertical");
+            attack = Input.GetMouseButtonDown(0);
+        }
 
         if (!pState.dashing)
         {
@@ -147,44 +153,54 @@ public class PlayerMovement : MonoBehaviour
         UpdateCameraYDampForPlayerFall();
 
         if (pState.dashing) return;
-        
-        RestoreTimeScale();
-        FlashWhileInvincible();
-        UpdateAnimationState();
-        Heal();
-        CastSpell();
 
-        if (pState.healing) return;
-
-        if (Input.GetButtonUp("Jump") && rb.velocity.y > 0)
+        if (pState.alive)
         {
-            rb.velocity = new Vector2(rb.velocity.x, 0);
-            pState.jumping = false;
-        }
+            RestoreTimeScale();
+            UpdateAnimationState();
+            Heal();
+            CastSpell();
 
-        if (Input.GetButtonDown("Jump") && jumpCounter > 0)
-        {
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-            pState.jumping = true;
-            jumpCounter--;
-        }
+            if (pState.healing) return;
 
-        if (IsGrounded())
-        {
-            jumpCounter = resetJumpCounter;
-        }
-
-        if (!pState.jumping)
-        {
-            if (jumpBufferCounter > 0 && coyoteTimeCounter > 0)
+            if (Input.GetButtonUp("Jump") && rb.velocity.y > 0)
             {
-                rb.velocity = new Vector3(rb.velocity.x, jumpForce);
-                pState.jumping = true;
+                rb.velocity = new Vector2(rb.velocity.x, 0);
+                pState.jumping = false;
             }
+
+            if (Input.GetButtonDown("Jump") && jumpCounter > 0)
+            {
+                rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+                pState.jumping = true;
+                jumpCounter--;
+            }
+
+            if (IsGrounded())
+            {
+                jumpCounter = resetJumpCounter;
+            }
+
+            if (!pState.jumping)
+            {
+                if (jumpBufferCounter > 0 && coyoteTimeCounter > 0)
+                {
+                    rb.velocity = new Vector3(rb.velocity.x, jumpForce);
+                    pState.jumping = true;
+                }
+            }
+
+            StartDash();
+            Attack();
         }
 
-        StartDash();
-        Attack();
+        FlashWhileInvincible();
+
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            StartCoroutine(Death());
+        }
+        
     }
 
     private void FixedUpdate()
@@ -420,6 +436,40 @@ public class PlayerMovement : MonoBehaviour
         restoreTime = true;
     }
 
+    IEnumerator Death()
+    {
+        pState.alive = false;
+        Time.timeScale = 1f;
+        GameObject _bloodSpurtParticles = Instantiate(bloodSpurt, transform.position, Quaternion.identity);
+        Destroy(_bloodSpurtParticles, 1.5f);
+        anim.SetTrigger("death");
+
+        yield return new WaitForSecondsRealtime(0.9f);
+        StartCoroutine(UIManager.Instance.ActiveDeathScreen());
+
+        yield return new WaitForSecondsRealtime(0.9f);
+        Instantiate(GameManager.Instance.shade, transform.position, Quaternion.identity);
+    }
+
+    public void Respawned()
+    {
+        if (!pState.alive)
+        {
+            pState.alive = true;
+            halfMana = true;
+            UIManager.Instance.SwitchMana(UIManager.ManaState.HalfMana);
+            Mana = 0;
+            Health = maxHealth;
+            anim.Play("Player_Idle");
+        }
+    }
+
+    public void RestoreMana()
+    {
+        halfMana = false;
+        UIManager.Instance.SwitchMana(UIManager.ManaState.FullMana);
+    }
+
     void SlashEffectAtAngle(GameObject _slashEffect, int _effectAngle, Transform _attackTransform)
     {
         _slashEffect = Instantiate(_slashEffect, _attackTransform);
@@ -458,8 +508,20 @@ public class PlayerMovement : MonoBehaviour
 
     public void TakeDamage(float _damage)
     {
-        Health -= Mathf.RoundToInt(_damage);
-        StartCoroutine(StopTakingDamage());
+        if (pState.alive)
+        {
+            Health -= Mathf.RoundToInt(_damage);
+            if (Health <= 0)
+            {
+                Health = 0;
+                StartCoroutine(Death());
+            }
+            else
+            {
+                StartCoroutine(StopTakingDamage());
+            }
+        }
+       
     }
 
     IEnumerator StopTakingDamage()
@@ -515,7 +577,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    float Mana
+    public float Mana
     {
         get { return mana; }
         set
@@ -523,7 +585,14 @@ public class PlayerMovement : MonoBehaviour
             //if mana stats change
             if (mana != value)
             {
-                mana = Mathf.Clamp(value, 0, 1);
+                if (!halfMana)
+                {
+                    mana = Mathf.Clamp(value, 0, 1);
+                }
+                else
+                {
+                    mana = Mathf.Clamp(value, 0, 0.5f);
+                }
                 manaStorage.fillAmount = Mana;
             }
         }
