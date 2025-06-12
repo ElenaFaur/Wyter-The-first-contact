@@ -10,7 +10,6 @@ public class GameManager : MonoBehaviour
     public UnityEngine.Vector2 respawnPoint;
     [SerializeField] Bench bench;
     private UnityEngine.Vector2 lastBenchRespawnPoint;
-    private bool usedBench = false;
     public GameObject shade;
     public static GameManager Instance { get; private set; }
 
@@ -58,15 +57,6 @@ public class GameManager : MonoBehaviour
     }
     public void RespawnPlayer()
     {
-        // if (usedBench)
-        // {
-        //     respawnPoint = lastBenchRespawnPoint;
-        // }
-        // else
-        // {
-        //     respawnPoint = platformingRespawnPoint;
-        // }
-
         SaveData.Instance.LoadBench();
         if (SaveData.Instance.benchSceneName != null)
         {
@@ -86,9 +76,4 @@ public class GameManager : MonoBehaviour
         StartCoroutine(UIManager.Instance.DeactivateDeathScreen());
     }
     
-    public void SetBenchRespawn(UnityEngine.Vector2 benchPosition)
-    {
-        usedBench = true;
-        lastBenchRespawnPoint = benchPosition;
-    }
 }

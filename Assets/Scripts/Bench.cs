@@ -5,29 +5,28 @@ using UnityEngine.SceneManagement;
 
 public class Bench : MonoBehaviour
 {
+    public bool inRange;
     public bool interacted;
-    // Start is called before the first frame update
-    void Start()
+
+    private void Update()
     {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
-    private void OnTriggerStay2D(Collider2D _collision)
-    {
-        if (_collision.CompareTag("Player") && Input.GetKeyDown(KeyCode.R))
+        if (inRange && Input.GetKeyDown(KeyCode.R))
         {
             interacted = true;
-            GameManager.Instance.SetBenchRespawn((Vector2)transform.position);
             SaveData.Instance.benchSceneName = SceneManager.GetActiveScene().name;
             SaveData.Instance.benchPos = new Vector2(gameObject.transform.position.x, gameObject.transform.position.y);
             SaveData.Instance.SaveBench();
             SaveData.Instance.SavePlayerData();
+
+            Debug.Log("benched");
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D _collision)
+    {
+        if (_collision.CompareTag("Player"))
+        {
+            inRange = true;
         }
     }
 
@@ -35,6 +34,7 @@ public class Bench : MonoBehaviour
     {
         if (_collision.CompareTag("Player"))
         {
+            inRange = false;
             interacted = false;
         }
     }
