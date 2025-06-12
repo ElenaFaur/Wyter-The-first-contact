@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Microsoft.Unity.VisualStudio.Editor;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -118,11 +117,27 @@ public class PlayerMovement : MonoBehaviour
         sprite = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
         sr = GetComponent<SpriteRenderer>();
-        SaveData.Instance.LoadPlayerData();
         gravity = rb.gravityScale;
         Mana = mana;
         manaStorage.fillAmount = Mana;
         Health = maxHealth;
+
+        SaveData.Instance.LoadPlayerData();
+
+        if (halfMana == true)
+        {
+            UIManager.Instance.SwitchMana(UIManager.ManaState.HalfMana);
+        }
+        else
+        {
+            UIManager.Instance.SwitchMana(UIManager.ManaState.FullMana);
+        }
+
+        if (Health == 0)
+        {
+            pState.alive = false;
+            GameManager.Instance.RespawnPlayer();
+        }
     }
 
     private void OnDrawGizmos()
@@ -443,6 +458,8 @@ public class PlayerMovement : MonoBehaviour
         GameObject _bloodSpurtParticles = Instantiate(bloodSpurt, transform.position, Quaternion.identity);
         Destroy(_bloodSpurtParticles, 1.5f);
         anim.SetTrigger("death");
+        rb.constraints = RigidbodyConstraints2D.FreezePosition;
+        GetComponent<BoxCollider2D>().enabled = false;
 
         yield return new WaitForSecondsRealtime(0.9f);
         StartCoroutine(UIManager.Instance.ActiveDeathScreen());
@@ -455,6 +472,9 @@ public class PlayerMovement : MonoBehaviour
     {
         if (!pState.alive)
         {
+            rb.constraints = RigidbodyConstraints2D.None;
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+            GetComponent<BoxCollider2D>().enabled = true;
             pState.alive = true;
             halfMana = true;
             UIManager.Instance.SwitchMana(UIManager.ManaState.HalfMana);

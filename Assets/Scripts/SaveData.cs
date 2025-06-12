@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
@@ -9,156 +8,150 @@ public struct SaveData
 {
     public static SaveData Instance;
 
-    //map stuff
-    public HashSet<string> sceneNames;
+    // map stuff
+    public List<string> sceneNamesList; // Use List for JSON serialization
+    public HashSet<string> sceneNames
+    {
+        get => sceneNamesList != null ? new HashSet<string>(sceneNamesList) : new HashSet<string>();
+        set => sceneNamesList = new List<string>(value);
+    }
 
-    //bench stuff
+    // bench stuff
     public string benchSceneName;
     public Vector2 benchPos;
 
-    //player stuff
+    // player stuff
     public int playerHealth;
     public float playerMana;
     public bool playerHalfMana;
     public Vector2 playerPosition;
     public string lastScene;
 
-    //enemies stuff
-    //shade
+    // enemies stuff
     public Vector2 shadePos;
     public string sceneWithShade;
     public Quaternion shadeRot;
 
+    private static string benchPath => Application.persistentDataPath + "/save.bench.json";
+    private static string playerPath => Application.persistentDataPath + "/save.player.json";
+    private static string shadePath => Application.persistentDataPath + "/save.shade.json";
+
     public void Initialize()
     {
-        if (!File.Exists(Application.persistentDataPath + "/save.bench.data"))
+        if (!File.Exists(benchPath))
         {
-            BinaryWriter writer = new BinaryWriter(File.Create(Application.persistentDataPath + "/save.bench.data"));
+            File.WriteAllText(benchPath, "");
         }
-
-        if (!File.Exists(Application.persistentDataPath + "/save.player.data"))
+        if (!File.Exists(playerPath))
         {
-            BinaryWriter writer = new BinaryWriter(File.Create(Application.persistentDataPath + "/save.player.data"));
+            File.WriteAllText(playerPath, "");
         }
-
-        if (!File.Exists(Application.persistentDataPath + "/save.shade.data"))
+        if (!File.Exists(shadePath))
         {
-            BinaryWriter writer = new BinaryWriter(File.Create(Application.persistentDataPath + "/save.shade.data"));
+            File.WriteAllText(shadePath, "");
         }
-
-        if (sceneNames == null)
+        if (sceneNamesList == null)
         {
-            sceneNames = new HashSet<string>();
+            sceneNamesList = new List<string>();
         }
     }
 
     public void SaveBench()
     {
-        using (BinaryWriter writer = new BinaryWriter(File.OpenWrite(Application.persistentDataPath + "/save.bench.data")))
-        {
-            writer.Write(benchSceneName);
-            writer.Write(benchPos.x);
-            writer.Write(benchPos.y);
-        }
+        string json = JsonUtility.ToJson(this, true);
+        File.WriteAllText(benchPath, json);
     }
 
     public void LoadBench()
     {
-        if (File.Exists(Application.persistentDataPath + "/save.bench.data"))
+        if (File.Exists(benchPath))
         {
-            using (BinaryReader reader = new BinaryReader(File.OpenRead(Application.persistentDataPath + "/save.bench.data")))
+            string json = File.ReadAllText(benchPath);
+            if (!string.IsNullOrEmpty(json))
             {
-                benchSceneName = reader.ReadString();
-                benchPos.x = reader.ReadSingle();
-                benchPos.y = reader.ReadSingle();
+                SaveData loaded = JsonUtility.FromJson<SaveData>(json);
+                benchSceneName = loaded.benchSceneName;
+                benchPos = loaded.benchPos;
             }
         }
     }
 
     public void SavePlayerData()
     {
-        using (BinaryWriter writer = new BinaryWriter(File.OpenWrite(Application.persistentDataPath + "/save.player.data")))
-        {
-            playerHealth = PlayerMovement.Instance.Health;
-            writer.Write(playerHealth);
-            playerMana = PlayerMovement.Instance.Mana;
-            writer.Write(playerMana);
-            playerHalfMana = PlayerMovement.Instance.halfMana;
-            writer.Write(playerHalfMana);
+        playerHealth = PlayerMovement.Instance.Health;
+        playerMana = PlayerMovement.Instance.Mana;
+        playerHalfMana = PlayerMovement.Instance.halfMana;
+        playerPosition = PlayerMovement.Instance.transform.position;
+        lastScene = SceneManager.GetActiveScene().name;
 
-            playerPosition = PlayerMovement.Instance.transform.position;
-            writer.Write(playerPosition.x);
-            writer.Write(playerPosition.y);
-
-            lastScene = SceneManager.GetActiveScene().name;
-            writer.Write(lastScene);
-        }
+        string json = JsonUtility.ToJson(this, true);
+        File.WriteAllText(playerPath, json);
     }
 
     public void LoadPlayerData()
     {
-        if (File.Exists(Application.persistentDataPath + "/save.player.data"))
+        if (File.Exists(playerPath))
         {
-            using (BinaryReader reader = new BinaryReader(File.OpenRead(Application.persistentDataPath + "/save.player.data")))
+            string json = File.ReadAllText(playerPath);
+            if (!string.IsNullOrEmpty(json))
             {
-                playerHealth = reader.ReadInt32();
-                playerMana = reader.ReadSingle();
-                playerHalfMana = reader.ReadBoolean();
-                playerPosition.x = reader.ReadSingle();
-                playerPosition.y = reader.ReadSingle();
-                lastScene = reader.ReadString();
+                try
+                {
+                    SaveData loaded = JsonUtility.FromJson<SaveData>(json);
+                    playerHealth = loaded.playerHealth;
+                    playerMana = loaded.playerMana;
+                    playerHalfMana = loaded.playerHalfMana;
+                    playerPosition = loaded.playerPosition;
+                    lastScene = loaded.lastScene;
 
-                SceneManager.LoadScene(lastScene);
-                PlayerMovement.Instance.transform.position = playerPosition;
-                PlayerMovement.Instance.halfMana = playerHalfMana;
-                PlayerMovement.Instance.Health = playerHealth;
-                PlayerMovement.Instance.Mana = playerMana;
+                    SceneManager.LoadScene(lastScene);
+                    PlayerMovement.Instance.transform.position = playerPosition;
+                    PlayerMovement.Instance.halfMana = playerHalfMana;
+                    PlayerMovement.Instance.Health = playerHealth;
+                    PlayerMovement.Instance.Mana = playerMana;
+                }
+                catch
+                {
+                    Debug.LogWarning("save.player.json is corrupted or incomplete. Resetting to defaults.");
+                    ResetPlayerDefaults();
+                }
             }
         }
         else
         {
-            Debug.Log("File doesnt exist");
-            PlayerMovement.Instance.halfMana = false;
-            PlayerMovement.Instance.Health = PlayerMovement.Instance.maxHealth;
-            PlayerMovement.Instance.Mana = 0.5f;
+            Debug.Log("Player save file doesn't exist");
+            ResetPlayerDefaults();
         }
+    }
+
+    private void ResetPlayerDefaults()
+    {
+        PlayerMovement.Instance.halfMana = false;
+        PlayerMovement.Instance.Health = PlayerMovement.Instance.maxHealth;
+        PlayerMovement.Instance.Mana = 0.5f;
     }
 
     public void SaveShadeData()
     {
-        using (BinaryWriter writer = new BinaryWriter(File.OpenWrite(Application.persistentDataPath + "/save.shade.data")))
-        {
-            sceneWithShade = SceneManager.GetActiveScene().name;
-            shadePos = Shade.Instance.transform.position;
-            shadeRot = Shade.Instance.transform.rotation;
+        sceneWithShade = SceneManager.GetActiveScene().name;
+        shadePos = Shade.Instance.transform.position;
+        shadeRot = Shade.Instance.transform.rotation;
 
-            writer.Write(sceneWithShade);
-
-            writer.Write(shadePos.x);
-            writer.Write(shadePos.y);
-
-            writer.Write(shadeRot.x);
-            writer.Write(shadeRot.y);
-            writer.Write(shadeRot.z);
-            writer.Write(shadeRot.w);
-        }
+        string json = JsonUtility.ToJson(this, true);
+        File.WriteAllText(shadePath, json);
     }
 
     public void LoadShadeData()
     {
-        if (File.Exists(Application.persistentDataPath + "/save.shade.data"))
+        if (File.Exists(shadePath))
         {
-            using (BinaryReader reader = new BinaryReader(File.OpenRead(Application.persistentDataPath + "/save.shade.data")))
+            string json = File.ReadAllText(shadePath);
+            if (!string.IsNullOrEmpty(json))
             {
-                sceneWithShade = reader.ReadString();
-                shadePos.x = reader.ReadSingle();
-                shadePos.y = reader.ReadSingle();
-
-                float rotationX = reader.ReadSingle();
-                float rotationY = reader.ReadSingle();
-                float rotationZ = reader.ReadSingle();
-                float rotationW = reader.ReadSingle();
-                shadeRot = new Quaternion(rotationX, rotationY, rotationZ, rotationW);
+                SaveData loaded = JsonUtility.FromJson<SaveData>(json);
+                sceneWithShade = loaded.sceneWithShade;
+                shadePos = loaded.shadePos;
+                shadeRot = loaded.shadeRot;
             }
         }
         else

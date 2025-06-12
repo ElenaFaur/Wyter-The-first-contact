@@ -950,6 +950,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4a350f1758ac8744b706cf01af94d4b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  inRange: 0
   interacted: 0
 --- !u!61 &311396514
 BoxCollider2D:
@@ -1885,15 +1886,15 @@ CompositeCollider2D:
       - X: -74265560
         Y: 203343728
       - X: -74265560
-        Y: 14206829
+        Y: 14696846
       - X: 24919662
-        Y: 14206829
+        Y: 14696846
   m_CompositePaths:
     m_Paths:
-    - - {x: 2.491937, y: 1.4206829}
+    - - {x: 2.491937, y: 1.4696846}
       - {x: 2.491937, y: 20.334373}
       - {x: -7.426556, y: 20.334345}
-      - {x: -7.4265265, y: 1.4206829}
+      - {x: -7.4265265, y: 1.4696846}
   m_VertexDistance: 0.0005
   m_OffsetDistance: 0.00005
   m_UseDelaunayMesh: 0
@@ -1930,7 +1931,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 1
-  m_Offset: {x: -2.4672947, y: 10.877528}
+  m_Offset: {x: -2.4672947, y: 10.902029}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -1941,7 +1942,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 9.918522, y: 18.91369}
+  m_Size: {x: 9.918522, y: 18.864689}
   m_EdgeRadius: 0
 --- !u!114 &497100606
 MonoBehaviour:
@@ -2146,7 +2147,6 @@ GameObject:
   - component: {fileID: 519420031}
   - component: {fileID: 519420029}
   - component: {fileID: 519420034}
-  - component: {fileID: 519420033}
   - component: {fileID: 519420035}
   m_Layer: 0
   m_Name: Main Camera
@@ -2198,7 +2198,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 3
+  orthographic size: 10
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -2229,19 +2229,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 173883365}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &519420033
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 519420028}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 47a95aa69e0e3144585ef2d37164ac78, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  player: {fileID: 717707382}
 --- !u!114 &519420034
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2965,6 +2952,7 @@ MonoBehaviour:
   mana: 10
   manaDrainSpeed: 0.3
   manaGain: 0.5
+  halfMana: 0
   manaSpellCost: 0.1
   timeBetweenCast: 0.5
   spellDamage: 1000
@@ -145251,9 +145239,9 @@ CompositeCollider2D:
   - m_Collider: {fileID: 1492379189}
     m_ColliderPaths:
     - - X: 307492480
-        Y: 14258833
+        Y: 14007273
       - X: -80345192
-        Y: 14258833
+        Y: 14007273
       - X: -80345192
         Y: -67811760
       - X: 307492480
@@ -145261,8 +145249,8 @@ CompositeCollider2D:
   m_CompositePaths:
     m_Paths:
     - - {x: 30.74922, y: -6.781176}
-      - {x: 30.74922, y: 1.4258833}
-      - {x: -8.034519, y: 1.425854}
+      - {x: 30.74922, y: 1.4007273}
+      - {x: -8.034519, y: 1.4006981}
       - {x: -8.03449, y: -6.781176}
   m_VertexDistance: 0.0005
   m_OffsetDistance: 0.00005
@@ -145300,7 +145288,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 1
-  m_Offset: {x: 11.357365, y: -2.6776462}
+  m_Offset: {x: 11.357365, y: -2.6902242}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -145311,7 +145299,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 38.783768, y: 8.207059}
+  m_Size: {x: 38.783768, y: 8.181903}
   m_EdgeRadius: 0
 --- !u!114 &1492379190
 MonoBehaviour:
