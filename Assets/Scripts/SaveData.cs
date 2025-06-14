@@ -22,10 +22,15 @@ public struct SaveData
 
     // player stuff
     public int playerHealth;
+    public int playerHeartShards;
     public float playerMana;
     public bool playerHalfMana;
     public Vector2 playerPosition;
     public string lastScene;
+    public bool playerUnlockedWallJump;
+    public bool playerUnlockedDash;
+    public bool playerUnlockedJump;
+    public bool playerUnlockedSideCast, playerUnlockedUpCast, playerUnlockedDownCast;
 
     // enemies stuff
     public Vector2 shadePos;
@@ -79,8 +84,15 @@ public struct SaveData
     public void SavePlayerData()
     {
         playerHealth = PlayerMovement.Instance.Health;
+        playerHeartShards = PlayerMovement.Instance.heartShards;
         playerMana = PlayerMovement.Instance.Mana;
         playerHalfMana = PlayerMovement.Instance.halfMana;
+        playerUnlockedWallJump = PlayerMovement.Instance.unlockedWallJump;
+        playerUnlockedDash = PlayerMovement.Instance.unlockedDash;
+        playerUnlockedJump = PlayerMovement.Instance.unlockedJump;
+        playerUnlockedSideCast = PlayerMovement.Instance.unlockedSideCast;
+        playerUnlockedUpCast = PlayerMovement.Instance.unlockedUpCast;
+        playerUnlockedDownCast = PlayerMovement.Instance.unlockedDownCast;
         playerPosition = PlayerMovement.Instance.transform.position;
         lastScene = SceneManager.GetActiveScene().name;
 
@@ -99,15 +111,29 @@ public struct SaveData
                 {
                     SaveData loaded = JsonUtility.FromJson<SaveData>(json);
                     playerHealth = loaded.playerHealth;
+                    playerHeartShards = loaded.playerHeartShards;
                     playerMana = loaded.playerMana;
                     playerHalfMana = loaded.playerHalfMana;
+                    playerUnlockedWallJump = loaded.playerUnlockedWallJump;
+                    playerUnlockedDash = loaded.playerUnlockedDash;
+                    playerUnlockedJump = loaded.playerUnlockedJump;
+                    playerUnlockedSideCast = loaded.playerUnlockedSideCast;
+                    playerUnlockedUpCast = loaded.playerUnlockedUpCast;
+                    playerUnlockedDownCast = loaded.playerUnlockedDownCast;
                     playerPosition = loaded.playerPosition;
                     lastScene = loaded.lastScene;
 
                     SceneManager.LoadScene(lastScene);
                     PlayerMovement.Instance.transform.position = playerPosition;
                     PlayerMovement.Instance.halfMana = playerHalfMana;
+                    PlayerMovement.Instance.unlockedWallJump = playerUnlockedWallJump;
+                    PlayerMovement.Instance.unlockedDash = playerUnlockedDash;
+                    PlayerMovement.Instance.unlockedJump = playerUnlockedJump;
+                    PlayerMovement.Instance.unlockedSideCast = playerUnlockedSideCast;
+                    PlayerMovement.Instance.unlockedUpCast = playerUnlockedUpCast;
+                    PlayerMovement.Instance.unlockedDownCast = playerUnlockedDownCast;
                     PlayerMovement.Instance.Health = playerHealth;
+                    PlayerMovement.Instance.heartShards = playerHeartShards;
                     PlayerMovement.Instance.Mana = playerMana;
                 }
                 catch
@@ -128,7 +154,14 @@ public struct SaveData
     {
         PlayerMovement.Instance.halfMana = false;
         PlayerMovement.Instance.Health = PlayerMovement.Instance.maxHealth;
+        PlayerMovement.Instance.heartShards = 0;
         PlayerMovement.Instance.Mana = 0.5f;
+        PlayerMovement.Instance.unlockedWallJump = false;
+        PlayerMovement.Instance.unlockedDash = false;
+        PlayerMovement.Instance.unlockedJump = false;
+        PlayerMovement.Instance.unlockedSideCast = false;
+        PlayerMovement.Instance.unlockedUpCast = false;
+        PlayerMovement.Instance.unlockedDownCast = false;
     }
 
     public void SaveShadeData()

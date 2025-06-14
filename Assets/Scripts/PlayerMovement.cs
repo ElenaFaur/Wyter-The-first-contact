@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [HideInInspector]public Rigidbody2D rb;
+    [HideInInspector] public Rigidbody2D rb;
     private BoxCollider2D coll;
     private SpriteRenderer sprite;
     private Animator anim;
@@ -31,6 +31,17 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float jumpBufferFrames = 1;
     private float coyoteTimeCounter = 0;
     [SerializeField] private float coyoteTime = 0.1f;
+
+    [Header("Wall Jump Settings")]
+    [SerializeField] private float wallSlidingSpeed = 2f;
+    [SerializeField] private Transform wallCheck;
+    [SerializeField] private LayerMask wallLayer;
+    [SerializeField] private float wallJumpingDuration;
+    [SerializeField] private Vector2 wallJumpingPower;
+    float wallJumpingDirection;
+    bool isWallSliding;
+    bool isWallJumping;
+    [Space(5)]
 
     [Header("Dash Settings:")]
     [SerializeField] private float dashSpeed = 20f;
@@ -61,6 +72,8 @@ public class PlayerMovement : MonoBehaviour
     [Header("Health Settings")]
     public int health;
     public int maxHealth;
+    public int maxTotalHealth = 10;
+    public int heartShards;
     [SerializeField] GameObject bloodSpurt;
     [SerializeField] float hitFlashSpeed;
     public delegate void OnHealthChangedDelegate();
@@ -94,6 +107,15 @@ public class PlayerMovement : MonoBehaviour
     private enum MovementState { idle, running, jumping, falling }
 
     public static PlayerMovement Instance;
+    bool openInventory;
+
+    //unlocking abilities
+    public bool unlockedWallJump;
+    public bool unlockedDash;
+    public bool unlockedJump;
+    public bool unlockedSideCast;
+    public bool unlockedUpCast;
+    public bool unlockedDownCast;
 
     private void Awake()
     {
@@ -157,6 +179,8 @@ public class PlayerMovement : MonoBehaviour
             dirX = Input.GetAxisRaw("Horizontal");
             dirY = Input.GetAxisRaw("Vertical");
             attack = Input.GetMouseButtonDown(0);
+            openInventory = Input.GetButton("Inventory");
+            ToggleInventory();
         }
 
         if (!pState.dashing)
@@ -172,41 +196,51 @@ public class PlayerMovement : MonoBehaviour
         if (pState.alive)
         {
             RestoreTimeScale();
-            UpdateAnimationState();
-            Heal();
-            CastSpell();
-
-            if (pState.healing) return;
-
-            if (Input.GetButtonUp("Jump") && rb.velocity.y > 0)
+            if (!isWallJumping)
             {
-                rb.velocity = new Vector2(rb.velocity.x, 0);
-                pState.jumping = false;
-            }
+                UpdateAnimationState();
 
-            if (Input.GetButtonDown("Jump") && jumpCounter > 0)
-            {
-                rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-                pState.jumping = true;
-                jumpCounter--;
-            }
-
-            if (IsGrounded())
-            {
-                jumpCounter = resetJumpCounter;
-            }
-
-            if (!pState.jumping)
-            {
-                if (jumpBufferCounter > 0 && coyoteTimeCounter > 0)
+                if (Input.GetButtonUp("Jump") && rb.velocity.y > 0)
                 {
-                    rb.velocity = new Vector3(rb.velocity.x, jumpForce);
+                    rb.velocity = new Vector2(rb.velocity.x, 0);
+                    pState.jumping = false;
+                }
+
+                if (Input.GetButtonDown("Jump") && jumpCounter > 0 && unlockedJump)
+                {
+                    rb.velocity = new Vector2(rb.velocity.x, jumpForce);
                     pState.jumping = true;
+                    jumpCounter--;
+                }
+
+                if (IsGrounded())
+                {
+                    jumpCounter = resetJumpCounter;
+                }
+
+                if (!pState.jumping)
+                {
+                    if (jumpBufferCounter > 0 && coyoteTimeCounter > 0)
+                    {
+                        rb.velocity = new Vector3(rb.velocity.x, jumpForce);
+                        pState.jumping = true;
+                    }
                 }
             }
 
-            StartDash();
+            if (unlockedWallJump)
+            {
+                WallSlide();
+                WallJump();
+            }
+
+            if (unlockedDash)
+            {
+                StartDash();
+            }
             Attack();
+            Heal();
+            CastSpell();
         }
 
         FlashWhileInvincible();
@@ -215,12 +249,12 @@ public class PlayerMovement : MonoBehaviour
         {
             StartCoroutine(Death());
         }
-        
+
     }
 
     private void FixedUpdate()
     {
-        if (pState.dashing) return;
+        if (pState.dashing || isRecoiling) return;
 
         // if (pState.recoilingX)
         // {
@@ -313,6 +347,62 @@ public class PlayerMovement : MonoBehaviour
         {
             jumpBufferCounter = jumpBufferCounter - Time.deltaTime * 10;
         }
+    }
+
+    private bool Walled()
+    {
+        return Physics2D.OverlapCircle(wallCheck.position, 0.2f, wallLayer);
+    }
+
+    void WallSlide()
+    {
+        if (Walled() && !IsGrounded() && dirX != 0)
+        {
+            isWallSliding = true;
+            rb.velocity = new Vector2(rb.velocity.x, Mathf.Clamp(rb.velocity.y, -wallSlidingSpeed, float.MaxValue));
+        }
+        else
+        {
+            isWallSliding = false;
+        }
+    }
+
+    void WallJump()
+    {
+        if (isWallSliding)
+        {
+            isWallJumping = false;
+            wallJumpingDirection = !pState.lookingRight ? 1 : -1;
+
+            CancelInvoke(nameof(StopWallJumping));
+        }
+
+        if (Input.GetButtonDown("Jump") && isWallSliding)
+        {
+            isWallJumping = true;
+            rb.velocity = new Vector2(wallJumpingDirection * wallJumpingPower.x, wallJumpingPower.y);
+
+            dashed = false;
+            jumpCounter = 0;
+
+            if (pState.lookingRight)
+            {
+                sprite.flipX = true;
+                pState.lookingRight = false;
+            }
+            else
+            {
+                sprite.flipX = false;
+                pState.lookingRight = true;
+            }
+
+            Invoke(nameof(StopWallJumping), wallJumpingDuration);
+        }
+    }
+
+    void StopWallJumping()
+    {
+        isWallJumping = false;
     }
 
     void UpdateCameraYDampForPlayerFall()
@@ -541,7 +631,7 @@ public class PlayerMovement : MonoBehaviour
                 StartCoroutine(StopTakingDamage());
             }
         }
-       
+
     }
 
     IEnumerator StopTakingDamage()
@@ -646,12 +736,12 @@ public class PlayerMovement : MonoBehaviour
 
     IEnumerator CastCoroutine()
     {
-        anim.SetBool("casting", true);
-        yield return new WaitForSeconds(0.15f);
 
         //side cast
-        if (dirY == 0 || (dirY < 0 && IsGrounded()))
+        if ((dirY == 0 || (dirY < 0 && IsGrounded())) && unlockedSideCast)
         {
+            anim.SetBool("casting", true);
+            yield return new WaitForSeconds(0.15f);
             GameObject _fireBall = Instantiate(sideSpellFireball, SideAttackTransform.position, Quaternion.identity);
 
             //flip fireball
@@ -666,24 +756,45 @@ public class PlayerMovement : MonoBehaviour
                 Recoil(Vector2.right, recoilXSpeed * 0.6f);
             }
             pState.recoilingX = true;
+
+            Mana -= manaSpellCost;
+            yield return new WaitForSeconds(0.35f);
         }
 
         //up cast
-        else if (dirY > 0)
+        else if (dirY > 0 && unlockedUpCast)
         {
+            anim.SetBool("casting", true);
+            yield return new WaitForSeconds(0.15f);
             Instantiate(upSpellExplosion, transform);
             rb.velocity = Vector2.zero;
+            Mana -= manaSpellCost;
+            yield return new WaitForSeconds(0.35f);
         }
 
         //down cast
-        else if (dirY < 0 && !IsGrounded())
+        else if (dirY < 0 && !IsGrounded() && unlockedDownCast)
         {
+            anim.SetBool("casting", true);
+            yield return new WaitForSeconds(0.15f);
             downSpellFireball.SetActive(true);
+            Mana -= manaSpellCost;
+            yield return new WaitForSeconds(0.35f);
         }
 
-        Mana -= manaSpellCost;
-        yield return new WaitForSeconds(0.35f);
         anim.SetBool("casting", false);
         pState.casting = false;
+    }
+
+    void ToggleInventory()
+    {
+        if (openInventory)
+        {
+            UIManager.Instance.inventory.SetActive(true);
+        }
+        else
+        {
+            UIManager.Instance.inventory.SetActive(false);
+        }
     }
 }
