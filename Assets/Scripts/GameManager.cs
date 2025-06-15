@@ -11,6 +11,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] Bench bench;
     private UnityEngine.Vector2 lastBenchRespawnPoint;
     public GameObject shade;
+
+    [SerializeField] private FadeUI pauseMenu;
+    [SerializeField] private float fadeTime;
+    public bool gameIsPaused;
     public static GameManager Instance { get; private set; }
 
     private void Awake()
@@ -48,6 +52,19 @@ public class GameManager : MonoBehaviour
         {
             SaveData.Instance.SavePlayerData();
         }
+
+        if (Input.GetKeyDown(KeyCode.Escape) && !gameIsPaused)
+        {
+            pauseMenu.FadeUIIn(fadeTime);
+            Time.timeScale = 0;
+            gameIsPaused = true;
+        }
+    }
+
+    public void UnpauseGame()
+    {
+        Time.timeScale = 1;
+        gameIsPaused = false;
     }
 
     public void SaveScene()
