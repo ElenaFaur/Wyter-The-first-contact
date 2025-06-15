@@ -107,13 +107,13 @@ public class PlayerMovement : MonoBehaviour
     [Space(5)]
 
     [Header("Audio")]
-    [SerializeField] AudioClip landingSound;
+    // [SerializeField] AudioClip landingSound;
     [SerializeField] AudioClip jumpSound;
     [SerializeField] AudioClip dashAndAttackSound;
     [SerializeField] AudioClip spellCastSound;
     [SerializeField] AudioClip hurtSound;
 
-    private bool landingSoundPlayed;
+    // private bool landingSoundPlayed;
 
     private enum MovementState { idle, running, jumping, falling }
 
@@ -346,18 +346,18 @@ public class PlayerMovement : MonoBehaviour
     {
         if (IsGrounded())
         {
-            if (!landingSoundPlayed)
-            {
-                audioSource.PlayOneShot(landingSound);
-                landingSoundPlayed = true;
-            }
+            // if (!landingSoundPlayed)
+            // {
+            //     audioSource.PlayOneShot(landingSound);
+            //     landingSoundPlayed = true;
+            // }
             pState.jumping = false;
             coyoteTimeCounter = coyoteTime;
         }
         else
         {
             coyoteTimeCounter -= Time.deltaTime;
-            landingSoundPlayed = false;
+            // landingSoundPlayed = false;
         }
 
         if (Input.GetButtonDown("Jump"))
