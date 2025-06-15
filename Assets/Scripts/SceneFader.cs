@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class SceneFader : MonoBehaviour
 {
@@ -15,10 +16,24 @@ public class SceneFader : MonoBehaviour
     }
 
     private void Awake()
-{
-    fadeOutUIImage = GetComponent<Image>();
-    fadeOutUIImage.enabled = false; 
-}
+    {
+        fadeOutUIImage = GetComponent<Image>();
+        fadeOutUIImage.enabled = false; 
+    }
+
+    public void CallFadeAndLoadScene(string _sceneToLoad)
+    {
+        StartCoroutine(FadeAndLoadScene(FadeDirection.In, _sceneToLoad));
+    }
+
+     public IEnumerator FadeAndLoadScene(FadeDirection _fadeDirection, string _sceneToLoad)
+    {
+        fadeOutUIImage.enabled = true;
+
+        yield return Fade(_fadeDirection);
+
+        SceneManager.LoadScene(_sceneToLoad);
+    }
 
     public IEnumerator Fade(FadeDirection _fadeDirection)
     {

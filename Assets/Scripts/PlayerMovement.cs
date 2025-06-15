@@ -12,6 +12,7 @@ public class PlayerMovement : MonoBehaviour
     private BoxCollider2D coll;
     private SpriteRenderer sprite;
     private Animator anim;
+    private AudioSource audioSource;
     [HideInInspector] public PlayerStateList pState;
     private SpriteRenderer sr;
     private bool canDash = true;
@@ -103,6 +104,16 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Camera Stuff")]
     [SerializeField] private float playerFallSpeedThreshold = -10;
+    [Space(5)]
+
+    [Header("Audio")]
+    [SerializeField] AudioClip landingSound;
+    [SerializeField] AudioClip jumpSound;
+    [SerializeField] AudioClip dashAndAttackSound;
+    [SerializeField] AudioClip spellCastSound;
+    [SerializeField] AudioClip hurtSound;
+
+    private bool landingSoundPlayed;
 
     private enum MovementState { idle, running, jumping, falling }
 
@@ -139,6 +150,7 @@ public class PlayerMovement : MonoBehaviour
         sprite = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
         sr = GetComponent<SpriteRenderer>();
+        audioSource = GetComponent<AudioSource>();
         gravity = rb.gravityScale;
         Mana = mana;
         manaStorage.fillAmount = Mana;
@@ -172,6 +184,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
+        if (GameManager.Instance.gameIsPaused) return;
         if (isRecoiling) return;
 
         if (pState.alive)
@@ -208,6 +221,7 @@ public class PlayerMovement : MonoBehaviour
 
                 if (Input.GetButtonDown("Jump") && jumpCounter > 0 && unlockedJump)
                 {
+                    audioSource.PlayOneShot(jumpSound);
                     rb.velocity = new Vector2(rb.velocity.x, jumpForce);
                     pState.jumping = true;
                     jumpCounter--;
@@ -222,6 +236,7 @@ public class PlayerMovement : MonoBehaviour
                 {
                     if (jumpBufferCounter > 0 && coyoteTimeCounter > 0)
                     {
+                        audioSource.PlayOneShot(jumpSound);
                         rb.velocity = new Vector3(rb.velocity.x, jumpForce);
                         pState.jumping = true;
                     }
@@ -331,12 +346,18 @@ public class PlayerMovement : MonoBehaviour
     {
         if (IsGrounded())
         {
+            if (!landingSoundPlayed)
+            {
+                audioSource.PlayOneShot(landingSound);
+                landingSoundPlayed = true;
+            }
             pState.jumping = false;
             coyoteTimeCounter = coyoteTime;
         }
         else
         {
             coyoteTimeCounter -= Time.deltaTime;
+            landingSoundPlayed = false;
         }
 
         if (Input.GetButtonDown("Jump"))
@@ -438,6 +459,7 @@ public class PlayerMovement : MonoBehaviour
         canDash = false;
         pState.dashing = true;
         anim.SetTrigger("dashing");
+        audioSource.PlayOneShot(dashAndAttackSound);
         rb.gravityScale = 0;
         float dashDirection = dirX != 0 ? dirX : (sprite.flipX ? -1 : 1);
         rb.velocity = new Vector2(dashDirection * dashSpeed, 0);
@@ -456,6 +478,7 @@ public class PlayerMovement : MonoBehaviour
         {
             timeSinceAttack = 0;
             anim.SetTrigger("attacking");
+            audioSource.PlayOneShot(dashAndAttackSound);
 
             if (dirY == 0 || dirY < 0 && IsGrounded())
             {
@@ -620,6 +643,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (pState.alive)
         {
+            audioSource.PlayOneShot(hurtSound);
             Health -= Mathf.RoundToInt(_damage);
             if (Health <= 0)
             {
@@ -736,6 +760,7 @@ public class PlayerMovement : MonoBehaviour
 
     IEnumerator CastCoroutine()
     {
+        audioSource.PlayOneShot(spellCastSound);
 
         //side cast
         if ((dirY == 0 || (dirY < 0 && IsGrounded())) && unlockedSideCast)
