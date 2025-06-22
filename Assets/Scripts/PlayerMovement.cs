@@ -11,7 +11,7 @@ public class PlayerMovement : MonoBehaviour
     [HideInInspector] public Rigidbody2D rb;
     private BoxCollider2D coll;
     private SpriteRenderer sprite;
-    private Animator anim;
+    [HideInInspector] public Animator anim;
     private AudioSource audioSource;
     [HideInInspector] public PlayerStateList pState;
     private SpriteRenderer sr;
@@ -42,6 +42,7 @@ public class PlayerMovement : MonoBehaviour
     float wallJumpingDirection;
     bool isWallSliding;
     bool isWallJumping;
+    public bool isWalled;
     [Space(5)]
 
     [Header("Dash Settings:")]
@@ -128,6 +129,9 @@ public class PlayerMovement : MonoBehaviour
     public bool unlockedUpCast;
     public bool unlockedDownCast;
 
+    //unlocking puzzles
+    // public bool unlockedBlueDoor;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -180,6 +184,15 @@ public class PlayerMovement : MonoBehaviour
         Gizmos.DrawWireCube(SideAttackTransform.position, SideAttackArea);
         Gizmos.DrawWireCube(UpAttackTransform.position, UpAttackArea);
         Gizmos.DrawWireCube(DownAttackTransform.position, DownAttackArea);
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        if (wallCheck != null)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(wallCheck.position, 0.2f);
+        }
     }
 
     private void Update()
@@ -306,6 +319,10 @@ public class PlayerMovement : MonoBehaviour
             pos.x = Mathf.Abs(pos.x);
             SideAttackTransform.localPosition = pos;
 
+            Vector3 posWallCheck = wallCheck.localPosition;
+            posWallCheck.x = Mathf.Abs(posWallCheck.x);
+            wallCheck.localPosition = posWallCheck;
+
             pState.lookingRight = true;
         }
         else if (dirX < 0f)
@@ -316,6 +333,10 @@ public class PlayerMovement : MonoBehaviour
             Vector3 pos = SideAttackTransform.localPosition;
             pos.x = -Mathf.Abs(pos.x);
             SideAttackTransform.localPosition = pos;
+
+            Vector3 posWallCheck = wallCheck.localPosition;
+            posWallCheck.x = -Mathf.Abs(posWallCheck.x);
+            wallCheck.localPosition = posWallCheck;
 
             pState.lookingRight = false;
         }
@@ -372,6 +393,7 @@ public class PlayerMovement : MonoBehaviour
 
     private bool Walled()
     {
+        isWalled = Physics2D.OverlapCircle(wallCheck.position, 0.2f, wallLayer);
         return Physics2D.OverlapCircle(wallCheck.position, 0.2f, wallLayer);
     }
 
@@ -482,7 +504,7 @@ public class PlayerMovement : MonoBehaviour
 
             if (dirY == 0 || dirY < 0 && IsGrounded())
             {
-                int _recoilLeftOrRight = pState.lookingRight ? 1 : 1;
+                int _recoilLeftOrRight = pState.lookingRight ? 1 : -1;
                 Hit(SideAttackTransform, SideAttackArea, ref pState.recoilingX, Vector2.right * _recoilLeftOrRight, recoilXSpeed);
                 Instantiate(slashEffect, SideAttackTransform);
             }

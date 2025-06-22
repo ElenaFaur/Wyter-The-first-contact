@@ -7,18 +7,53 @@ public class Bench : MonoBehaviour
 {
     public bool inRange;
     public bool interacted;
+    [SerializeField] float healSpeed = 1f;
+    float healTimer;
+    [SerializeField] private GameObject saveText;
+    [SerializeField] private float textDuration = 1.5f;
 
     private void Update()
     {
-        if (inRange && Input.GetKeyDown(KeyCode.R))
+        if (inRange)
         {
-            interacted = true;
-            SaveData.Instance.benchSceneName = SceneManager.GetActiveScene().name;
-            SaveData.Instance.benchPos = new Vector2(gameObject.transform.position.x, gameObject.transform.position.y);
-            SaveData.Instance.SaveBench();
-            SaveData.Instance.SavePlayerData();
+            HealPlayer();
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                interacted = true;
+                SaveData.Instance.benchSceneName = SceneManager.GetActiveScene().name;
+                SaveData.Instance.benchPos = new Vector2(gameObject.transform.position.x, gameObject.transform.position.y);
+                SaveData.Instance.SaveBench();
+                SaveData.Instance.SavePlayerData();
+                Debug.Log("Benched");
 
-            Debug.Log("benched");
+                StartCoroutine(ShowSavedText());
+            }
+        }
+    }
+
+    private IEnumerator ShowSavedText()
+    {
+        if (saveText != null)
+        {
+            saveText.SetActive(true);
+            yield return new WaitForSeconds(textDuration);
+            saveText.SetActive(false);
+        }
+    }
+
+    private void HealPlayer()
+    {
+        if (PlayerMovement.Instance.Health < PlayerMovement.Instance.maxHealth)
+        {
+            healTimer += Time.deltaTime;
+            if (healTimer >= healSpeed)
+            {
+                PlayerMovement.Instance.Health++;
+                healTimer = 0;
+            }
+
+            PlayerMovement.Instance.pState.healing = false;
+            PlayerMovement.Instance.anim.SetBool("healing", false);
         }
     }
 

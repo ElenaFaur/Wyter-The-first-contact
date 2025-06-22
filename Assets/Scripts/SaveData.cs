@@ -30,6 +30,7 @@ public struct SaveData
     public bool playerUnlockedWallJump;
     public bool playerUnlockedDash;
     public bool playerUnlockedJump;
+    // public bool playerUnlockedBlueDoor;
     public bool playerUnlockedSideCast, playerUnlockedUpCast, playerUnlockedDownCast;
 
     // enemies stuff
@@ -93,6 +94,7 @@ public struct SaveData
         playerUnlockedSideCast = PlayerMovement.Instance.unlockedSideCast;
         playerUnlockedUpCast = PlayerMovement.Instance.unlockedUpCast;
         playerUnlockedDownCast = PlayerMovement.Instance.unlockedDownCast;
+        // playerUnlockedBlueDoor = PlayerMovement.Instance.unlockedBlueDoor;
         playerPosition = PlayerMovement.Instance.transform.position;
         lastScene = SceneManager.GetActiveScene().name;
 
@@ -120,6 +122,7 @@ public struct SaveData
                     playerUnlockedSideCast = loaded.playerUnlockedSideCast;
                     playerUnlockedUpCast = loaded.playerUnlockedUpCast;
                     playerUnlockedDownCast = loaded.playerUnlockedDownCast;
+                    // playerUnlockedBlueDoor = loaded.playerUnlockedBlueDoor;
                     playerPosition = loaded.playerPosition;
                     lastScene = loaded.lastScene;
 
@@ -132,6 +135,7 @@ public struct SaveData
                     PlayerMovement.Instance.unlockedSideCast = playerUnlockedSideCast;
                     PlayerMovement.Instance.unlockedUpCast = playerUnlockedUpCast;
                     PlayerMovement.Instance.unlockedDownCast = playerUnlockedDownCast;
+                    // PlayerMovement.Instance.unlockedBlueDoor = playerUnlockedBlueDoor;
                     PlayerMovement.Instance.Health = playerHealth;
                     PlayerMovement.Instance.heartShards = playerHeartShards;
                     PlayerMovement.Instance.Mana = playerMana;
@@ -162,6 +166,7 @@ public struct SaveData
         PlayerMovement.Instance.unlockedSideCast = false;
         PlayerMovement.Instance.unlockedUpCast = false;
         PlayerMovement.Instance.unlockedDownCast = false;
+        // PlayerMovement.Instance.unlockedBlueDoor = false;
     }
 
     public void SaveShadeData()

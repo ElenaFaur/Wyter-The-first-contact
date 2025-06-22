@@ -11,10 +11,10 @@ public class IncreaseMaxHealth : MonoBehaviour
 
     void Start()
     {
-        if (PlayerMovement.Instance.maxHealth >= PlayerMovement.Instance.maxTotalHealth)
-        {
-            Destroy(gameObject);
-        }
+        // if (PlayerMovement.Instance.maxHealth >= PlayerMovement.Instance.maxTotalHealth)
+        // {
+        //     Destroy(gameObject);
+        // }
     }
 
     private void OnTriggerEnter2D(Collider2D _collision)
