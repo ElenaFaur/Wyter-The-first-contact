@@ -197,4 +197,22 @@ public struct SaveData
             Debug.Log("Shade doesn't exist");
         }
     }
+
+    public void DeleteData()
+    {
+        if (File.Exists(benchPath))
+        {
+            File.Delete(benchPath);
+        }
+
+        if (File.Exists(playerPath))
+        {
+            File.Delete(playerPath);
+        }
+
+        if (File.Exists(shadePath))
+        {
+            File.Delete(shadePath);
+        }
+    }
 }

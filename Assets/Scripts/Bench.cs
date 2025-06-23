@@ -9,7 +9,7 @@ public class Bench : MonoBehaviour
     public bool interacted;
     [SerializeField] float healSpeed = 1f;
     float healTimer;
-    [SerializeField] private GameObject saveText;
+    // [SerializeField] private GameObject saveText;
     [SerializeField] private float textDuration = 1.5f;
 
     private void Update()
@@ -33,11 +33,11 @@ public class Bench : MonoBehaviour
 
     private IEnumerator ShowSavedText()
     {
-        if (saveText != null)
+        if (UIManager.Instance.saveText != null)
         {
-            saveText.SetActive(true);
+            UIManager.Instance.saveText.SetActive(true);
             yield return new WaitForSeconds(textDuration);
-            saveText.SetActive(false);
+            UIManager.Instance.saveText.SetActive(false);
         }
     }
 
