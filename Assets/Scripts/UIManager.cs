@@ -8,6 +8,7 @@ public class UIManager : MonoBehaviour
     public GameObject inventory;
     [SerializeField] GameObject deathScreen;
     [SerializeField] GameObject halfMana, fullMana;
+    [SerializeField] public GameObject saveText;
 
     public enum ManaState
     {
@@ -16,6 +17,10 @@ public class UIManager : MonoBehaviour
     }
     public ManaState manaState;
     public SceneFader sceneFader;
+
+    public GameObject confirmResetPanel;
+    public GameObject resetEndingPanel;
+    public GameObject cancelEndingPanel;
 
     private void Awake()
     {
