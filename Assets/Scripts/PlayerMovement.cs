@@ -782,7 +782,10 @@ public class PlayerMovement : MonoBehaviour
 
     IEnumerator CastCoroutine()
     {
-        audioSource.PlayOneShot(spellCastSound);
+        if (unlockedSideCast || unlockedUpCast || unlockedDownCast)
+        {
+            audioSource.PlayOneShot(spellCastSound);
+        }
 
         //side cast
         if ((dirY == 0 || (dirY < 0 && IsGrounded())) && unlockedSideCast)
