@@ -58,9 +58,9 @@ TagManager:
   - name: Player
     uniqueID: 2216141047
     locked: 0
-  - name: Glowy Plants
-    uniqueID: 1924967589
-    locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Glowy Plants
+    uniqueID: 1924967589
     locked: 0

@@ -816,7 +816,13 @@ public class PlayerMovement : MonoBehaviour
         {
             anim.SetBool("casting", true);
             yield return new WaitForSeconds(0.15f);
-            Instantiate(upSpellExplosion, transform);
+            // Instantiate(upSpellExplosion, transform);
+            GameObject spell = Instantiate(upSpellExplosion, transform);
+            if (!pState.lookingRight)
+            {
+                float offsetX = 20.5f;
+                spell.transform.localPosition += new Vector3(-offsetX, 0, 0);
+            }
             rb.velocity = Vector2.zero;
             Mana -= manaSpellCost;
             yield return new WaitForSeconds(0.35f);
